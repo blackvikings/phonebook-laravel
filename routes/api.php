@@ -20,9 +20,11 @@ use App\Http\Controllers\User\ContactController;
 //    return $request->user();
 //});
 
-Route::group(['prefix' => 'admin'], function (){
+Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => 'admin'], function (){
    Route::post('register', [\App\Http\Controllers\Admin\AuthController::class, 'register']);
    Route::post('login', [\App\Http\Controllers\Admin\AuthController::class, 'login']);
+   Route::apiResource('users', \App\Http\Controllers\Admin\UserController::class);
+   Route::apiResource('contacts', \App\Http\Controllers\Admin\ContactController::class);
 });
 
 Route::group(['prefix' => 'auth'], function (){
@@ -30,4 +32,6 @@ Route::group(['prefix' => 'auth'], function (){
     Route::post('login', [\App\Http\Controllers\User\AuthController::class, 'login']);
 });
 
-Route::apiResource('contacts', ContactController::class);
+Route::group(['prefix' => 'client'], function () {
+    Route::apiResource('contacts', ContactController::class);
+});

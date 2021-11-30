@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\User;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Http\Resources\ContactResource;
+use Illuminate\Http\Request;
 use App\Models\Contact;
 use Illuminate\Support\Facades\Validator;
 
@@ -12,16 +12,16 @@ class ContactController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth:api');
+        $this->middleware('auth:admin')->except(['index', 'show']);
     }
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index()
     {
-        return ContactResource::collection(Contact::where('user_id', $request->user()->id)->with('user')->paginate(25));
+        return ContactResource::collection(Contact::with('user')->paginate(25));
     }
 
     /**
@@ -77,9 +77,8 @@ class ContactController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request)
+    public function update(Request $request, Contact $contact)
     {
-
         $rules = [
             'id' => 'required|array|min:1',
             "id.*"  => "required|string",
@@ -98,7 +97,7 @@ class ContactController extends Controller
             return response()->json(['success' => false, 'error' => $validator->messages()]);
         }
 
-         $contact = Contact::whereIn('id', $request->id)->update($request->only(['name', 'contactNo', 'email']));
+        $contact = Contact::whereIn('id', $request->id)->update($request->only(['name', 'contactNo', 'email']));
 
         return new ContactResource($contact);
     }
